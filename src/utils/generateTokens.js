@@ -7,7 +7,7 @@ const generateAccessToken = (userId, email) => {
         const accessToken = jwt.sign(
             { userId, email },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: '1h' }  // Token expires in 1 hour
+            {expiresIn:process.env.ACCESS_TOKEN_EXPIRY}
         );
         return accessToken;
     } catch (error) {

@@ -18,9 +18,14 @@ const budgetSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    endDate: {
-        type: Date
-    },
+    expenses: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Expense'
+    }]
+    // endDate: {
+    //     type: Date
+    // },
 }, { timestamps: true });
 
+budgetSchema.index({ userId: 1, createdAt: -1 });
 export const Budget = mongoose.model("Budget", budgetSchema);

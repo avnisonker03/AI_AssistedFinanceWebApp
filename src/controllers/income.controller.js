@@ -56,7 +56,9 @@ export const updateIncomeSource = (async (req, res) => {
             });
         }
 
-        const { incomeId, updatedSourceIncome, updatedMonthlyAmount } = req.body;
+        const {incomeId}=req.params
+
+        const { updatedSourceIncome, updatedMonthlyAmount } = req.body;
         
         // Check if all required fields are present
         if (!updatedSourceIncome || !updatedMonthlyAmount || !incomeId) {
@@ -124,7 +126,7 @@ export const deleteIncomeSource=(async(req,res)=>{
             });
         }
 
-        const { incomeId } = req.body;
+        const { incomeId } = req.params;
         
         // Check if all required fields are present
         if (!incomeId) {
