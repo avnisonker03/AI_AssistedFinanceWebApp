@@ -20,10 +20,12 @@ app.get("/", (req, res) => {
 import userRouter from "./routes/user.routes.js";
 import incomeRouter from "./routes/income.routes.js";
 import budgetRouter from "./routes/budget.routes.js";
+import expenseRouter from "./routes/expense.routes.js";
 
 app.use("/user",userRouter);
 app.use("/user/income",incomeRouter);
 app.use("/user/budget",budgetRouter);
+app.use("/user/expense",expenseRouter)
 
 export {app}
 
