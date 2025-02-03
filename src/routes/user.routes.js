@@ -8,6 +8,6 @@ const userRouter=Router();
 userRouter.post("/register-user",registeration);
 userRouter.post("/login-user",login);
 userRouter.delete("/delete-user",authenticateToken,deleteUser);
-userRouter.delete("/user-dashboard",authenticateToken,getUserDashboard);
+userRouter.get("/user-dashboard",authenticateToken,getUserDashboard);
 
 export default userRouter;
