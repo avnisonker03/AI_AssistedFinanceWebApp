@@ -5,10 +5,108 @@ import { Income } from "../models/income.model.js";
 import mongoose from "mongoose";
 import { Expense } from "../models/expense.model.js";
 import { Budget } from "../models/budget.model.js";
+import getFinancialAdvice from "../utils/getFinancialAdvice.js";
 
 const now = new Date();
 const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+
+const formatDashboardResponse = async(data) => {
+  // Helper function to validate number fields
+  const validateNumber = (value) => {
+      return typeof value === 'number' && !isNaN(value) ? value : 0;
+  };
+  
+  // Helper function to validate arrays
+  const validateArray = (arr) => {
+      return Array.isArray(arr) ? arr : [];
+  };
+  
+  // Helper function to validate objects
+  const validateObject = (obj) => {
+      return obj && typeof obj === 'object' ? obj : {};
+  };
+  
+  // Extract total monthly income
+  const monthlyIncome = validateObject(data.totalMonthlyIncome[0] || {});
+  const totalMonthlyIncome = validateNumber(monthlyIncome.totalMonthlyIncome);
+  
+  // Extract total monthly expenses
+  const monthlyExpenses = validateObject(data.totalMonthlyExpenses[0] || {});
+  const totalMonthlyExpenses = validateNumber(monthlyExpenses.totalMonthlyExpense); // Note: changed from totalMonthlyExpenses
+  
+  // Extract highest expense data
+  const highestExpense = validateObject(data.highestExpenseAmountAndPaymentMethod[0] || {});
+  
+  // Extract budget and expense totals correctly
+  const totalBudgetAmount = validateNumber(data.totalBudgetAmount[0]?.totalBudgetAmount || 0);
+  const totalExpenseAmount = validateNumber(data.totalExpenseAmount[0]?.totalExpenseAmount || 0);
+  
+  // Format the dashboard response
+  const dashboardResponse = {
+      income: {
+          totalMonthlyIncome,
+          formattedIncome: new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR'
+          }).format(totalMonthlyIncome)
+      },
+      expenses: {
+          totalMonthlyExpenses,
+          formattedExpenses: new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR'
+          }).format(totalMonthlyExpenses),
+          highestExpense: {
+              amount: validateNumber(highestExpense.highestMonthlyExpense), // Changed from maxAmount
+              paymentMethod: highestExpense.highestPaymentMethodUsed || 'N/A', // Changed from paymentMethod
+              formattedAmount: new Intl.NumberFormat('en-IN', {
+                  style: 'currency',
+                  currency: 'INR'
+              }).format(validateNumber(highestExpense.highestMonthlyExpense))
+          }
+      },
+      budgets: {
+          totalBudgetAmount,
+          totalExpenseAmount,
+          activeBudgets: validateArray(data.activeBudgets[0]?.budgetDetails || []).map(budget => ({
+              ...budget,
+              budgetAmount: validateNumber(budget.budgetAmount),
+              formattedAmount: new Intl.NumberFormat('en-IN', {
+                  style: 'currency',
+                  currency: 'INR'
+              }).format(validateNumber(budget.budgetAmount))
+          }))
+      },
+      trends: {
+          incomeVsExpense: validateArray(data.IncomeVsExpense).map(item => ({
+              ...item,
+              income: validateNumber(item.income),
+              expenses: validateNumber(item.expenses)
+          })),
+          dailyExpenses: validateArray(data.dailyExpenses).map(expense => ({
+              ...expense,
+              totalExpense: validateNumber(expense.totalExpense),
+              paymentMethods: validateArray(expense.paymentMethods).map(payment => ({
+                  ...payment,
+                  amount: validateNumber(payment.amount)
+              }))
+          }))
+      },
+      summary: {
+          savingsRate: totalMonthlyIncome > 0 
+              ? ((totalMonthlyIncome - totalMonthlyExpenses) / totalMonthlyIncome * 100).toFixed(2)
+              : 0,
+          budgetUtilization: totalBudgetAmount > 0
+              ? ((totalExpenseAmount / totalBudgetAmount) * 100).toFixed(2)
+              : 0
+      }
+  };
+  
+  return dashboardResponse;
+};
+
 
 export const registeration = (async (req, res) => {
     try {
@@ -142,176 +240,362 @@ export const deleteUser = (async (req, res) => {
 })
 
 export const getUserDashboard = (async (req, res) => {
-    const userId = req.userId;
-    if (!userId) {
-        return res.status(401).json({
-            message: "you are not authorised to view this"
-        })
-    }
-    const totalMonthlyIncome = await Income.aggregate([
-        {
-            $match: {
-                userId: new mongoose.Types.ObjectId(userId),
-                createdAt: {
-                    $gte: startOfMonth,
-                    $lte: endOfMonth
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$userId", totalMonthlyIncome: { $sum: "$monthlyAmount" }
-            }
-        }
-    ])
-    console.log("total monthly income", totalMonthlyIncome)
-
-    const totalMonthlyExpenses = await Expense.aggregate([
-        {
-            $match: {
-                userId: new mongoose.Types.ObjectId(userId),
-                createdAt: {
-                    $gte: startOfMonth,
-                    $lte: endOfMonth
-                }
-            }
-        },
-        {
-            $group: {
-                _id: "$userId", totalMonthlyExpense: { $sum: "$expenseAmount" }
-            }
-        }
-    ])
-
-    console.log("total monthly expense", totalMonthlyExpenses)
-
-    const highestExpenseAmountAndPaymentMethod = await Expense.aggregate([
-        {
-            $match: {
-                userId: new mongoose.Types.ObjectId(userId),
-                createdAt: {
-                    $gte: startOfMonth,
-                    $lte: endOfMonth
-                }
-            },
-        },
-        {
-            $group: {
-                _id: "$userId",
-                highestMonthlyExpense: { $max: "$expenseAmount" },
-                highestPaymentMethodUsed: { $max: "$paymentMethod" }
-            }
-        }
-    ])
-
-    console.log("highest expense amt", highestExpenseAmountAndPaymentMethod)
-
-    const totalBudgetAmount = await Budget.aggregate([
-        {
-            $match: {
-                userId: new mongoose.Types.ObjectId(userId),
-            }
-        },
-        {
-            $group: {
-                _id: "$userId",
-                totalBudgetAmount: { $sum: "$budgetAmount" }
-            }
-        }
-    ])
-    console.log("total budget utilisation", totalBudgetAmount)
-
-    const totalExpenseAmount=await Expense.aggregate([
-        {
-           $match:{
-             userId:new mongoose.Types.ObjectId(userId)
-           }
-        },
-        {
-           $group:{
-            _id:"$userId",
-            totalExpenseAmount:{$sum:"$expenseAmount"}
-           }
-        }
-    ])
-    console.log("total Expense Amount",totalExpenseAmount)
-
-    const totalBudgetUtilisation = totalExpenseAmount[0]?.totalExpenseAmount / totalBudgetAmount[0]?.totalBudgetAmount * 100;
-    let roundedValue = parseFloat(totalBudgetUtilisation.toFixed(2));
-    
-    console.log("total budget utilisation",totalBudgetUtilisation)
-    console.log(roundedValue)
-   
-    const activeBudgets=await Budget.aggregate([
-        {
+   try {
+     const userId = req.userId;
+     if (!userId) {
+         return res.status(401).json({
+             message: "you are not authorised to view this"
+         })
+     }
+     const totalMonthlyIncome = await Income.aggregate([
+         {
+             $match: {
+                 userId: new mongoose.Types.ObjectId(userId),
+                 createdAt: {
+                     $gte: startOfMonth,
+                     $lte: endOfMonth
+                 }
+             }
+         },
+         {
+             $group: {
+                 _id: "$userId", totalMonthlyIncome: { $sum: "$monthlyAmount" }
+             }
+         }
+     ])
+     console.log("total monthly income", totalMonthlyIncome)
+ 
+     const totalMonthlyExpenses = await Expense.aggregate([
+         {
+             $match: {
+                 userId: new mongoose.Types.ObjectId(userId),
+                 createdAt: {
+                     $gte: startOfMonth,
+                     $lte: endOfMonth
+                 }
+             }
+         },
+         {
+             $group: {
+                 _id: "$userId", totalMonthlyExpense: { $sum: "$expenseAmount" }
+             }
+         }
+     ])
+ 
+     console.log("total monthly expense", totalMonthlyExpenses)
+ 
+     const highestExpenseAmountAndPaymentMethod = await Expense.aggregate([
+         {
+             $match: {
+                 userId: new mongoose.Types.ObjectId(userId),
+                 createdAt: {
+                     $gte: startOfMonth,
+                     $lte: endOfMonth
+                 }
+             },
+         },
+         {
+             $group: {
+                 _id: "$userId",
+                 highestMonthlyExpense: { $max: "$expenseAmount" },
+                 highestPaymentMethodUsed: { $max: "$paymentMethod" }
+             }
+         }
+     ])
+ 
+     console.log("highest expense amt", highestExpenseAmountAndPaymentMethod)
+ 
+     const totalBudgetAmount = await Budget.aggregate([
+         {
+             $match: {
+                 userId: new mongoose.Types.ObjectId(userId),
+             }
+         },
+         {
+             $group: {
+                 _id: "$userId",
+                 totalBudgetAmount: { $sum: "$budgetAmount" }
+             }
+         }
+     ])
+     console.log("total budget utilisation", totalBudgetAmount)
+ 
+     const totalExpenseAmount=await Expense.aggregate([
+         {
             $match:{
-                userId: new mongoose.Types.ObjectId(userId)
+              userId:new mongoose.Types.ObjectId(userId)
             }
-        },
-        {
-            $lookup:{
-                from:"expenses",
-                localField:"expenses",
-                foreignField:"_id",
-                as: 'associatedExpenses'
+         },
+         {
+            $group:{
+             _id:"$userId",
+             totalExpenseAmount:{$sum:"$expenseAmount"}
             }
-        },
-        {
-            $addFields: {
-                totalExpenses: {
-                  $sum: '$associatedExpenses.expenseAmount'
-                }
-            }
-        },
-        {
-            $match: {
-                $expr: {
-                  $lt: ['$totalExpenses', '$budgetAmount']
-                }
-            }
-        },
-    {    
-        $facet: {
-            // Details of active budgets
-            budgetDetails: [
-                {
-                    $project: {
-                        budgetName: 1,
-                        budgetAmount: 1,
-                        totalExpenses: 1,
-                        remainingBudget: {
-                            $subtract: ['$budgetAmount', '$totalExpenses']
-                        },
-                    }
-                }
-            ],
-            // Count of active budgets
-            budgetCount: [
-                {
-                    $count: 'activeBudgetsCount'
-                }
-            ]
-        }}
-        // {
-        //     $project: {
-        //         budgetName: 1,
-        //         budgetAmount: 1,
-        //         totalExpenses: 1,
-        //         remainingBudget: {
-        //           $subtract: ['$budgetAmount', '$totalExpenses']
-        //         }
-        //     }
-        // },
-        // {
-        //     $count: 'activeBudgetsCount'
-        // }
+         }
+     ])
+     console.log("total Expense Amount",totalExpenseAmount)
+ 
+     const totalBudgetUtilisation = totalExpenseAmount[0]?.totalExpenseAmount / totalBudgetAmount[0]?.totalBudgetAmount * 100;
+     let roundedValue = parseFloat(totalBudgetUtilisation.toFixed(2));
+     
+     console.log("total budget utilisation",totalBudgetUtilisation)
+     console.log(roundedValue)
+    
+     const activeBudgets=await Budget.aggregate([
+         {
+             $match:{
+                 userId: new mongoose.Types.ObjectId(userId)
+             }
+         },
+         {
+             $lookup:{
+                 from:"expenses",
+                 localField:"expenses",
+                 foreignField:"_id",
+                 as: 'associatedExpenses'
+             }
+         },
+         {
+             $addFields: {
+                 totalExpenses: {
+                   $sum: '$associatedExpenses.expenseAmount'
+                 }
+             }
+         },
+         {
+             $match: {
+                 $expr: {
+                   $lt: ['$totalExpenses', '$budgetAmount']
+                 }
+             }
+         },
+     {    
+         $facet: {
+             // Details of active budgets
+             budgetDetails: [
+                 {
+                     $project: {
+                         budgetName: 1,
+                         budgetAmount: 1,
+                         totalExpenses: 1,
+                         remainingBudget: {
+                             $subtract: ['$budgetAmount', '$totalExpenses']
+                         },
+                     }
+                 }
+             ],
+             // Count of active budgets
+             budgetCount: [
+                 {
+                     $count: 'activeBudgetsCount'
+                 }
+             ]
+         }}
+     ])
+     const budgetDetails = activeBudgets[0].budgetDetails;
+     const budgetCount = activeBudgets[0].budgetCount[0]?.activeBudgetsCount || 0;
+     
+     console.log("Active Budget Details:", budgetDetails);
+     console.log("Active Budgets Count:", budgetCount);
+      
+     const monthlyIncome=await Income.aggregate([
+         {
+             $match: {
+               userId: new mongoose.Types.ObjectId(userId),
+               createdAt: { 
+                 $gte: startOfMonth,
+                 $lte: endOfMonth
+               }
+             }
+           },
+           {
+             $group: {
+               _id: {
+                 year: { $year: "$createdAt" },
+                 month: { $month: "$createdAt" }
+               },
+               // Sum all income entries for each month
+               totalIncome: { $sum: "$monthlyAmount" },
+               // Optional: Count number of income entries
+               incomeEntries: { $sum: 1 }
+             }
+           }
+     ])
+     
+ 
+     const monthlyExpenses = await Expense.aggregate([
+         {
+           $match: {
+             userId: new mongoose.Types.ObjectId(userId),
+             expenseDate: {
+               $gte: startOfMonth,
+               $lte: endOfMonth
+             }
+           }
+         },
+         {
+           $group: {
+             _id: {
+               year: { $year: "$expenseDate" },
+               month: { $month: "$expenseDate" }
+             },
+             totalExpenses: { $sum: "$expenseAmount" },
+             // Optional: Count number of expenses
+             expenseEntries: { $sum: 1 }
+           }
+         }
+       ]);
+ 
+       const months = {};
+   
+   // Process income data
+   monthlyIncome.forEach(item => {
+     const date = `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`;
+     if (!months[date]) {
+       months[date] = {
+         income: 0,
+         expenses: 0,
+         incomeEntries: 0,
+         expenseEntries: 0
+       };
+     }
+     months[date].income = item.totalIncome;
+     months[date].incomeEntries = item.incomeEntries;
+   });
+ 
+   // Process expense data
+   monthlyExpenses.forEach(item => {
+     const date = `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`;
+     if (!months[date]) {
+       months[date] = {
+         income: 0,
+         expenses: 0,
+         incomeEntries: 0,
+         expenseEntries: 0
+       };
+     }
+     months[date].expenses = item.totalExpenses;
+     months[date].expenseEntries = item.expenseEntries;
+   });
+ 
+   // Convert to array and sort by date
+   const IncomeVsExpense = Object.entries(months).map(([date, values]) => ({
+     date,
+     income: values.income,
+     expenses: values.expenses,
+     savings: values.income - values.expenses,
+     incomeEntries: values.incomeEntries,
+     expenseEntries: values.expenseEntries
+   })).sort((a, b) => a.date.localeCompare(b.date));
+ 
+   const dailyExpenses = await Expense.aggregate([
+     {
+       $match: {
+         userId: new mongoose.Types.ObjectId(userId),
+         expenseDate: {
+            $gte: startOfMonth,
+            $lte: endOfMonth
+         }
+       }
+     },
+     {
+       $group: {
+         _id: {
+           // Group by date
+           date: { $dateToString: { format: "%Y-%m-%d", date: "$expenseDate" } },
+           // Group by payment method
+           paymentMethod: "$paymentMethod"
+         },
+         // Sum of expenses for each date and payment method
+         totalAmount: { $sum: "$expenseAmount" },
+         // Count of expenses (one way to get number of transactions)
+         count: { $sum: 1 }
+       }
+     },
+     {
+       // Reshape data to group by date
+       $group: {
+         _id: "$_id.date",
+         totalExpense: { $sum: "$totalAmount" },
+         paymentMethods: {
+           $push: {
+             method: "$_id.paymentMethod",
+             amount: "$totalAmount",
+             count: "$count"
+           }
+         }
+       }
+     },
+     {
+       $project: {
+         _id: 0,
+         date: "$_id",
+         totalExpense: { $round: ["$totalExpense", 2] },
+         paymentMethods: 1
+       }
+     },
+     {
+       $sort: { date: 1 }
+     }
+   ]);
+ 
+   const dashboardData={
+     totalMonthlyIncome,
+     totalMonthlyExpenses,
+     highestExpenseAmountAndPaymentMethod,
+     totalBudgetAmount,
+     totalExpenseAmount,
+     activeBudgets,
+     IncomeVsExpense,
+     dailyExpenses
+   }
+ 
+   const response = await formatDashboardResponse(dashboardData);
+   console.log("data in ai",response)
+   const advice=getFinancialAdvice(response?.income?.totalMonthlyIncome,response?.budgets?.totalBudgetAmount,response?.expenses?.totalMonthlyExpenses);
+   return res.status(200).json({
+     success: true,
+     message: "Dashboard data retrieved successfully",
+     data: response,
+     advice
+   });
+   } catch (error) {
+    console.error("Dashboard data formatting error:", error);
+  return res.status(500).json({
+    success: false,
+    message: "Error formatting dashboard data",
+    error: error.message
+  });
+   }
 
-    ])
-    const budgetDetails = activeBudgets[0].budgetDetails;
-    const budgetCount = activeBudgets[0].budgetCount[0]?.activeBudgetsCount || 0;
-    
-    console.log("Active Budget Details:", budgetDetails);
-    console.log("Active Budgets Count:", budgetCount);
-    
-  
 })
+
+export const googleAuthCallback = async (req, res) => {
+  try {
+      const user = req.user; // Passport adds user to req
+      
+      const accessToken = generateAccessToken(user._id, user.email);
+      const refreshToken = generateRefreshToken(user._id, user.email);
+
+      const userDetails = {
+          fullName: user.fullName,
+          email: user.email,
+          incomes: user.incomes || [],
+          budgets: user.budgets || [],
+          accessToken,
+          refreshToken
+      };
+
+      return res.status(200).json({
+          message: "Google authentication successful",
+          userDetails
+      });
+  } catch (error) {
+      console.log("Google auth callback error:", error);
+      return res.status(500).json({
+          message: "Authentication failed"
+      });
+  }
+};
+
+

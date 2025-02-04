@@ -10,10 +10,21 @@ const userSchema=new Schema({
         required:true,
         unique:true
     },
-    password:{
-        type:String,
-        required:true
+    password: {
+        type: String,
+        required: function() {
+            return !this.googleId; // Optional if Google auth
+        }
     },
+    googleId: {
+        type: String,
+        unique:true,
+        sparse: true
+    },
+    // password:{
+    //     type:String,
+    //     required:true
+    // },
     incomes: [{
         type: Schema.Types.ObjectId,
         ref: 'Income'
