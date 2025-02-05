@@ -1,44 +1,45 @@
-// utils/getFinancialAdvice.js
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize the OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true,
-});
 
-// Function to fetch user-specific data (mocked for this example)
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Function to generate personalized financial advice
 const getFinancialAdvice = async (totalBudget, totalIncome, totalSpend) => {
-  console.log(totalBudget, totalIncome, totalSpend);
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("Gemini API key not configured in environment variables");
+  }
+
   try {
-    const userPrompt = `
+    // Use gemini-pro model
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+    const prompt = `
       Based on the following financial data:
       - Total Budget: ${totalBudget} USD 
       - Expenses: ${totalSpend} USD 
       - Incomes: ${totalIncome} USD
-      Provide detailed financial advice in 2 sentence to help the user manage their finances more effectively.
+      Provide detailed financial advice in 2 sentences to help the user manage their finances more effectively.
     `;
 
-    // Send the prompt to the OpenAI API
-    const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: userPrompt }],
-      max_tokens: 150,  // Limit response length
-      temperature: 0.7  // Add some variability to responses
-    });
+    // Generate the response
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    
+    console.log("Generated advice:", response.text());
+    return response.text();
 
-    // Process and return the response
-    const advice = chatCompletion.choices[0].message.content;
-
-    console.log(advice);
-    return advice;
   } catch (error) {
-    console.error("Error fetching financial advice:", error);
-    return "Sorry, I couldn't fetch the financial advice at this moment. Please try again later.";
+    console.error("Error generating financial advice:", error);
+    
+    if (error.message?.includes("PERMISSION_DENIED")) {
+      throw new Error("Invalid API key or API not enabled. Please check your configuration.");
+    }
+    
+    if (error.message?.includes("RESOURCE_EXHAUSTED")) {
+      throw new Error("API quota exceeded. Please try again later.");
+    }
+
+    throw new Error("Failed to generate financial advice. Please try again later.");
   }
 };
 
 export default getFinancialAdvice;
-

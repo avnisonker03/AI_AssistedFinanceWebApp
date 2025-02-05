@@ -552,7 +552,7 @@ export const getUserDashboard = (async (req, res) => {
  
    const response = await formatDashboardResponse(dashboardData);
    console.log("data in ai",response)
-   const advice=getFinancialAdvice(response?.income?.totalMonthlyIncome,response?.budgets?.totalBudgetAmount,response?.expenses?.totalMonthlyExpenses);
+   const advice=await getFinancialAdvice(response?.income?.totalMonthlyIncome,response?.budgets?.totalBudgetAmount,response?.expenses?.totalMonthlyExpenses);
    return res.status(200).json({
      success: true,
      message: "Dashboard data retrieved successfully",

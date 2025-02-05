@@ -3,6 +3,8 @@ import { deleteUser,  getUserDashboard, login, registeration } from "../controll
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import passport from 'passport';
 import { googleAuthCallback } from "../controllers/user.controller.js";
+import {sendOtp,verifyOtp} from "../controllers/otp.controller.js"
+
 
 const userRouter=Router();
 
@@ -27,6 +29,9 @@ userRouter.get('/auth/google/failure', (req, res) => {
         message: "Google authentication failed"
     });
 });
+
+userRouter.post('/send-otp',sendOtp);
+userRouter.post('/verify-otp',verifyOtp)
 
 userRouter.post("/register-user",registeration);
 userRouter.post("/login-user",login);
