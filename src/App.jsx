@@ -9,7 +9,7 @@ import { Outlet } from 'react-router-dom'
 
 export default function App() {
   return (
-    <div className='bg-blue-200'>
+    <div>
       <Navbar/>
       <Outlet/>
       <Footer/>

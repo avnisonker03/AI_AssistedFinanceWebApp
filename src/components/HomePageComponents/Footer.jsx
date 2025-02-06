@@ -5,6 +5,11 @@ import { motion } from "framer-motion";
 export default function Footer() {
   return (
     <footer className="bg-gradient-to-b from-white to-blue-50 shadow-lg">
+      <main className="p-4">
+      <div className="border-b-2 border-gray-300 text-center">
+        <h1 className="inline-block px-5 translate-y-2.5 bg-white"></h1>
+      </div>
+    </main>
       <div className="max-w-7xl mx-auto px-6 py-12">
         <motion.div 
           className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0"
