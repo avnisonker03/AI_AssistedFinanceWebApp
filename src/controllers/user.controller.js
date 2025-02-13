@@ -176,7 +176,6 @@ export const login = (async (req, res) => {
         const userDetails = {
             fullName: user.fullName,
             email: user.email,
-            expenses: user.expenses || [],
             incomes: user.incomes || [],
             budget: user.budgets || [],
             accessToken: accessToken,
