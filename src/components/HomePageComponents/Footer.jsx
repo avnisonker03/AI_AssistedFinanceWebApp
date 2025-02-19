@@ -4,29 +4,27 @@ import { motion } from "framer-motion";
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-b from-white to-blue-50 shadow-lg">
-      <main className="p-4">
-      <div className="border-b-2 border-gray-300 text-center">
-        <h1 className="inline-block px-5 translate-y-2.5 bg-white"></h1>
-      </div>
-    </main>
+    <footer className="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg">
+      {/* Top divider with proper styling */}
+      <div className="w-full border-b border-gray-700 h-1"></div>
+
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <motion.div 
+        <motion.div
           className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <motion.div 
+          <motion.div
             className="text-center md:text-left"
             whileHover={{ scale: 1.05 }}
           >
             <div className="flex items-center justify-center md:justify-start space-x-2">
-              <Home className="h-6 w-6 text-blue-600" />
-              <h2 className="text-xl font-bold text-gray-800">SpendWise</h2>
+              <Home className="h-6 w-6 text-blue-400" />
+              <h2 className="text-xl font-bold text-gray-100">SpendWise</h2>
             </div>
-            <p className="text-sm text-gray-600 mt-1">Smart Finance. Smarter You.</p>
+            <p className="text-sm text-gray-400 mt-1">Smart Finance. Smarter You.</p>
           </motion.div>
 
           <div className="flex items-center space-x-8">
@@ -38,7 +36,7 @@ export default function Footer() {
               <motion.a
                 key={index}
                 href="#"
-                className="flex items-center space-x-1 text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                className="flex items-center space-x-1 text-gray-400 hover:text-blue-400 transition-colors duration-200"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -56,7 +54,7 @@ export default function Footer() {
               <motion.a
                 key={index}
                 href="#"
-                className="p-2 text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                className="p-2 text-gray-400 hover:text-blue-400 transition-colors duration-200"
                 whileHover={{ scale: 1.2, rotate: 10 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -66,8 +64,11 @@ export default function Footer() {
           </div>
         </motion.div>
 
-        <motion.div 
-          className="mt-8 pt-4 border-t border-gray-100 text-center text-sm text-gray-600"
+        {/* Middle divider - clean and simple */}
+        <div className="border-t border-gray-700 my-8"></div>
+
+        <motion.div
+          className="text-center text-sm text-gray-400"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -79,7 +80,7 @@ export default function Footer() {
               <motion.a
                 key={index}
                 href="#"
-                className="hover:text-blue-600 transition-colors duration-200"
+                className="hover:text-blue-400 transition-colors duration-200"
                 whileHover={{ scale: 1.05 }}
               >
                 {text}

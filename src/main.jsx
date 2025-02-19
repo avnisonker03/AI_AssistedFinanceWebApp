@@ -6,17 +6,23 @@ import { createBrowserRouter, createRoutesFromChildren, RouterProvider,Route } f
 import HeroSection from './components/HomePageComponents/HeroSection.jsx'
 import Login from './components/login/Login.jsx'
 import Registration from './components/registeration/Registeration.jsx'
+import { Provider } from 'react-redux'
+import store from './store/store.js'
+import Dashboard from './components/Dashboard/Dashboard.jsx'
 
 const router=createBrowserRouter(createRoutesFromChildren(
   <Route path='/' element={<App/>}>
      <Route path='/home' element={<HeroSection/>}/>
      <Route path='/login' element={<Login/>}/>
      <Route path='/registeration' element={<Registration/>}/>
+     <Route path='/dashboard' element={<Dashboard/>}/>
   </Route>
 ))
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <Provider store={store}>
     <RouterProvider router={router}/>
+    </Provider>
   </StrictMode>,
 )
