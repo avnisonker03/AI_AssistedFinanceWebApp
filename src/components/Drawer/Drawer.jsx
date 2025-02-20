@@ -1,33 +1,20 @@
-import React, { useState } from 'react';
-import { Menu, X, LayoutDashboard, Wallet, PiggyBank, Receipt, ChevronRight, Home } from 'lucide-react';
+import React from 'react';
+import { LayoutDashboard, Wallet, PiggyBank, Receipt, ChevronRight, Home } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Drawer = () => {
-  const [isOpen, setIsOpen] = useState(true);
+const Drawer = ({ isOpen, toggleDrawer }) => {
   const location = useLocation();
-
-  const toggleDrawer = () => {
-    setIsOpen(!isOpen);
-  };
 
   const menuItems = [
     { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard', path: '/dashboard' },
-    { icon: <Wallet className="w-5 h-5" />, label: 'Income', path: '/income' },
-    { icon: <PiggyBank className="w-5 h-5" />, label: 'Budget', path: '/budget' },
-    { icon: <Receipt className="w-5 h-5" />, label: 'Expenses', path: '/expenses' },
+    { icon: <Wallet className="w-5 h-5" />, label: 'Income', path: '/my-income-list' },
+    { icon: <PiggyBank className="w-5 h-5" />, label: 'Budget', path: '/my-budget-list' },
+    { icon: <Receipt className="w-5 h-5" />, label: 'Expenses', path: '/my-expense-list' },
   ];
 
   return (
     <>
-      {/* Hamburger Button */}
-      <button
-        onClick={toggleDrawer}
-        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700"
-      >
-        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
-
-      {/* Overlay */}
+      {/* Overlay - only shown on mobile when drawer is open */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -35,17 +22,16 @@ const Drawer = () => {
         />
       )}
 
-      {/* Drawer */}
+      {/* Fixed Drawer - always in DOM when authenticated */}
       <div
-        className={`fixed top-0 left-0 h-full bg-gray-900 text-white z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full bg-gray-900 text-white z-40 w-64 shadow-xl transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 w-64 shadow-xl`}
+        }`}
       >
         {/* Header */}
         <div className="p-4 border-b border-gray-800 mt-8 flex gap-2">
-          {/* <h2 className="text-2xl font-bold text-blue-400">FinanceTrack</h2> */}
-          <Home className="h-7 w-7 text-blue-400" />
-          <span className="text-2xl font-bold text-gray-100">SpendWise</span>
+          {/* <Home className="h-7 w-7 text-blue-400" /> */}
+          {/* <span className="text-2xl font-bold text-gray-100">SpendWise</span> */}
         </div>
 
         {/* Navigation */}
@@ -64,7 +50,7 @@ const Drawer = () => {
                     }`}
                   >
                     {item.icon}
-                    <span className='text-lg'>{item.label}</span>
+                    <span className="text-lg">{item.label}</span>
                     {isActive && <ChevronRight className="w-4 h-4 ml-auto" />}
                   </Link>
                 </li>
