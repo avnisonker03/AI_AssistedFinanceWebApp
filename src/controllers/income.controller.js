@@ -119,7 +119,7 @@ export const updateIncomeSource = (async (req, res) => {
 
 export const deleteIncomeSource=(async(req,res)=>{
     try {
-        const { userId } = req.user;
+        const  userId  = req.userId;
         if (!userId) {
             return res.status(404).json({
                 message: "you are not authorised to delete the income source"
