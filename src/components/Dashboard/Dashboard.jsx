@@ -20,7 +20,8 @@ import {
   Area
 } from 'recharts';
 import API_ENDPOINTS from '../../../env';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 // Animation variants
 const containerVariant = {
@@ -267,6 +268,7 @@ export default function Dashboard() {
     console.log("accessToken not found");
     navigate('/login')
   }
+  
 
   useEffect(() => {
     const fetchData = async () => {

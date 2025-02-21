@@ -4,12 +4,13 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import API_ENDPOINTS from '../../../env';
 import { useDispatch } from 'react-redux';
-import { login,logout } from '../../store/authSlice';
+import { login, logout } from '../../store/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
-    const navigate=useNavigate()
-    const dispatch=useDispatch()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -22,6 +23,42 @@ export default function Login() {
             ...formData,
             [e.target.name]: e.target.value
         });
+    };
+  
+    const handleGoogleLogin = async (credentialResponse) => {
+        setLoading(true);
+        setError("");
+        try {
+            console.log("Google Login Success: Credential Received"); // Debug log
+    
+            // const response = await axios.get(API_ENDPOINTS.googleSignIn);
+    
+            // console.log("Server Response:", response.data); // Debug log
+    
+            // if (response.data) {
+            //     localStorage.setItem('accessToken', response.data.accessToken);
+            //     // localStorage.setItem('refreshToken', response.data.refreshToken);
+            //     localStorage.setItem('authTimestamp', Date.now().toString());
+    
+            //     dispatch(login(response.data.userDetails));
+    
+            //     console.log("Navigating to dashboard..."); // Debug log
+            //     navigate('/dashboard');
+            // }
+            window.location.href = API_ENDPOINTS.googleSignIn;
+        } catch (err) {
+            console.log("Error",err)
+            console.error("Google Login Error:", err.response?.data?.message || err.message);
+            setError(err.response?.data?.message || "Google login failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+
+    const handleGoogleFailure = (error) => {
+        setError("Google authentication failed: " + (error.error || "Unknown error"));
+        setLoading(false);
     };
 
     const handleEmailLogin = async (e) => {
@@ -36,11 +73,12 @@ export default function Login() {
             });
 
             if (response.data) {
-                localStorage.setItem('accessToken', response.data.userDetails.accessToken);
-                console.log("response",response)
+                localStorage.setItem('accessToken', response.data.userDetails.accessToken);;
+                localStorage.setItem('authTimestamp', Date.now().toString());
+                console.log("response", response)
                 dispatch(login(response.data.userDetails))
                 navigate('/dashboard')
-                
+
             }
         } catch (err) {
             setError(err.response?.data?.message || "Login failed");
@@ -49,38 +87,32 @@ export default function Login() {
         }
     };
 
-    const handleGoogleLogin = async () => {
-        try {
-            window.location.href = 'http://localhost:3000/user/auth/google';
-        } catch (err) {
-            setError("Google sign-in failed");
-        }
-    };
+
 
     return (
         <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center py-8 px-4">
             {/* Animated Background Icons */}
             <div className="absolute inset-0 overflow-hidden">
                 <motion.div
-                    animate={{ 
+                    animate={{
                         y: [0, -20, 0],
                         rotate: [0, 10, 0]
                     }}
-                    transition={{ 
+                    transition={{
                         duration: 5,
                         repeat: Infinity,
-                        ease: "easeInOut" 
+                        ease: "easeInOut"
                     }}
                     className="absolute top-20 left-20 opacity-10"
                 >
                     <Mail className="h-12 w-12 text-purple-300" />
                 </motion.div>
                 <motion.div
-                    animate={{ 
+                    animate={{
                         y: [0, 20, 0],
                         rotate: [0, -10, 0]
                     }}
-                    transition={{ 
+                    transition={{
                         duration: 4,
                         repeat: Infinity,
                         ease: "easeInOut",
@@ -98,7 +130,7 @@ export default function Login() {
                 className="max-w-md mb-8 w-full space-y-8 bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 relative z-10"
             >
                 <div className="text-center">
-                    <motion.h2 
+                    <motion.h2
                         className="text-3xl font-bold text-gray-100"
                         initial={{ y: -10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -106,7 +138,7 @@ export default function Login() {
                     >
                         Welcome Back
                     </motion.h2>
-                    <motion.p 
+                    <motion.p
                         className="mt-2 text-gray-300"
                         initial={{ y: -5, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -195,7 +227,7 @@ export default function Login() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
                     >
-                        Don't have an account? 
+                        Don't have an account?
                         <span className="text-blue-400 ml-2 hover:underline hover:cursor-pointer">
                             Create Account
                         </span>

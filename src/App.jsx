@@ -1,23 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Navbar from './components/HomePageComponents/Navbar';
 import Footer from './components/HomePageComponents/Footer';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Drawer from './components/Drawer/Drawer';
+import { login } from './store/authSlice';
 
 export default function App() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { isAuthenticated } = useSelector(state => state.auth);
 
   // Set initial state based on authentication
-  useEffect(() => {
-    if (isAuthenticated) {
-      setIsDrawerOpen(true);
-    } else {
-      setIsDrawerOpen(false);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     setIsDrawerOpen(true);
+  //   } else {
+  //     setIsDrawerOpen(false);
+  //   }
+  // }, [isAuthenticated]);
+  const navigate=useNavigate();
+  const dispatch=useDispatch()
+ 
+useEffect(() => {
+  const initializeAuth = () => {
+    const token = localStorage.getItem('accessToken');
+    const timestamp = localStorage.getItem('authTimestamp');
+    
+    if (token && timestamp) {
+      const currentTime = Date.now();
+      const storedTime = parseInt(timestamp);
+      const timeDifference = currentTime - storedTime;
+      
+      // Check if within time limit (e.g., 24 hours = 86400000 ms)
+      const TIME_LIMIT = 86400000; // 24 hours
+      
+      if (timeDifference < TIME_LIMIT) {
+        // Token is "fresh enough" - just set authenticated to true
+        dispatch(login({ userData: null }));
+        navigate('/dashboard')
+        // You'll need to fetch user data separately when needed
+        // This is the trade-off for not making the API call now
+      } else {
+        // Token is too old - force re-authentication
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('authTimestamp');
+        navigate('/login')
+      }
     }
-  }, [isAuthenticated]);
-
+    else{
+      navigate('/home')
+    }
+  };
+  
+  initializeAuth();
+}, [dispatch]);
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };

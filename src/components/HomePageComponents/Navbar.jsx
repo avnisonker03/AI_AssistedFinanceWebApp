@@ -1,10 +1,22 @@
 import React from 'react';
 import { Home, BarChart2, ArrowRight, Menu, X , LogOut} from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { logout } from '../../store/authSlice';
 
 export default function Navbar({ onMenuClick, isDrawerOpen }) {
   const { isAuthenticated } = useSelector(state => state.auth);
+  const dispatch=useDispatch()
+  const navigate=useNavigate();
+  const handleLogout = () => {
+    // Clear both items
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('authTimestamp');
+    // Update Redux
+    dispatch(logout());
+    navigate('/home')
+  };
 
   return (
     <motion.nav
@@ -42,7 +54,9 @@ export default function Navbar({ onMenuClick, isDrawerOpen }) {
              whileTap={{ scale: 0.95 }}
            >
              <BarChart2 className="h-6 w-6" />
+             <Link to='/login'>
              <span className="text-lg">Dashboard</span>
+             </Link>
            </motion.button>
  
            <motion.button
@@ -50,12 +64,15 @@ export default function Navbar({ onMenuClick, isDrawerOpen }) {
              whileHover={{ scale: 1.05, boxShadow: "0 5px 15px rgba(0,0,0,0.2)" }}
              whileTap={{ scale: 0.95 }}
            >
+            <Link to='/login'>
              <span className="text-lg">Get Started</span>
+             </Link>
              <ArrowRight className="h-5 w-5" />
            </motion.button>
          </div>
         }
-        {isAuthenticated && <div>
+        {isAuthenticated && 
+        <div onClick={handleLogout}>
         <LogOut className="h-7 w-7 text-blue-400 hover:cursor-pointer"/>
         </div>}
       </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, LineChart, PieChart, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function HeroSection() {
   return (
@@ -92,7 +93,9 @@ export default function HeroSection() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
+              <Link to='/login'>
               <span className="text-lg">Get Started for Free</span>
+              </Link>
               <ArrowRight className="h-5 w-5" />
             </motion.button>
 

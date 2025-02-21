@@ -29,7 +29,7 @@ export default function Footer() {
 
           <div className="flex items-center space-x-8">
             {[
-              { icon: <Home className="h-4 w-4" />, text: "Home" },
+              { icon: <Home className="h-4 w-4" />, text: "Home"  },
               { icon: <Info className="h-4 w-4" />, text: "About" },
               { icon: <Phone className="h-4 w-4" />, text: "Contact" }
             ].map((item, index) => (
@@ -48,12 +48,13 @@ export default function Footer() {
 
           <div className="flex space-x-4">
             {[
-              { icon: <Github className="h-5 w-5" /> },
-              { icon: <Linkedin className="h-5 w-5" /> }
+              { icon: <Github className="h-5 w-5" />,url:'https://github.com/avnisonker03'},
+              { icon: <Linkedin className="h-5 w-5" />,url:'http://www.linkedin.com/in/avni-sonker-85a054256' }
             ].map((item, index) => (
               <motion.a
                 key={index}
-                href="#"
+                href={item.url}
+                target="_blank"
                 className="p-2 text-gray-400 hover:text-blue-400 transition-colors duration-200"
                 whileHover={{ scale: 1.2, rotate: 10 }}
                 whileTap={{ scale: 0.95 }}
