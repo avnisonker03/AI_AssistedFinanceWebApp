@@ -598,3 +598,24 @@ export const googleAuthCallback = async (req, res) => {
 };
 
 
+export const verifyToken=async(req,res)=>{
+    try {
+        // The authenticateToken middleware already verified the token
+        // and attached userId to req
+        
+        // Fetch user data using the userId from token
+        const user = await User.findById(req.userId).select('-password');
+        
+        if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Return user data
+        return res.status(200).json({ 
+          success: true,
+          user 
+        });
+      } catch (error) {
+        return res.status(500).json({ error: 'Server error', message: error.message });
+      }
+}

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteUser,  getUserDashboard, login, registeration } from "../controllers/user.controller.js";
+import { deleteUser,  getUserDashboard, login, registeration, verifyToken } from "../controllers/user.controller.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import passport from 'passport';
 import { googleAuthCallback } from "../controllers/user.controller.js";
@@ -32,6 +32,7 @@ userRouter.get('/auth/google/failure', (req, res) => {
 
 userRouter.post('/send-otp',sendOtp);
 userRouter.post('/verify-otp',verifyOtp)
+userRouter.get('/verify-token',authenticateToken,verifyToken)
 
 userRouter.post("/register-user",registeration);
 userRouter.post("/login-user",login);
