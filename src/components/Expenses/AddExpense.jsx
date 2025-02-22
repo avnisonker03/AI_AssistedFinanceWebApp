@@ -111,7 +111,6 @@ export default function AddExpense({ isOpen, onClose, onSuccess, budgetId }) {
               <option value="cash">Cash</option>
               <option value="card">Card</option>
               <option value="upi">UPI</option>
-              <option value="netbanking">Net Banking</option>
               <option value="other">Other</option>
             </select>
           </div>

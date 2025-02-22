@@ -264,10 +264,10 @@ export default function IncomeLists() {
             variants={itemVariant}
             className="bg-gray-800/50 rounded-xl p-12 text-center"
           >
-            <div className="mx-auto bg-green-500/20 p-4 rounded-full mb-4 w-16 h-16 flex items-center justify-center">
-              <Wallet className="w-8 h-8 text-green-400" />
+            <div className="mx-auto bg-blue-500/20 p-4 rounded-full mb-4 w-16 h-16 flex items-center justify-center">
+              <Wallet className="w-8 h-8 text-blue-400" />
             </div>
-            <h3 className="text-2xl font-semibold text-green-400 mb-2">No Income Sources Found</h3>
+            <h3 className="text-2xl font-semibold text-blue-400 mb-2">No Income Sources Found</h3>
             <p className="text-gray-400 mb-6">Get started by adding your income sources to track your monthly earnings</p>
             <button
               className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors inline-flex items-center"

@@ -75,7 +75,7 @@ export default function Footer() {
           transition={{ delay: 0.3 }}
           viewport={{ once: true }}
         >
-          <p>© {new Date().getFullYear()} SpendWise. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SpendWise. All rights reserved. Made By Avni Sonker.</p>
           <div className="flex justify-center space-x-4 mt-2">
             {["Privacy Policy", "Terms of Service"].map((text, index) => (
               <motion.a

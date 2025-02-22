@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, Calendar, ChevronDown, AlertTriangle, PieChart, ArrowUpRight, Trash2, PlusCircle } from 'lucide-react';
+import { DollarSign, Calendar, ChevronDown, AlertTriangle, PieChart, ArrowUpRight, Trash2, PlusCircle, ArrowBigRight } from 'lucide-react';
 import API_ENDPOINTS from '../../../env';
 import axios from 'axios';
 import DeleteExpense from './DeleteExpense';
+import { Link } from 'react-router-dom';
 // Animation variants
 const containerVariant = {
     hidden: { opacity: 0 },
@@ -219,11 +220,13 @@ export default function ExpenseLists() {
                         <DollarSign className="w-8 h-8 text-blue-400" />
                     </div>
                     <h3 className="text-2xl font-semibold text-blue-400 mb-2">No Expenses Found</h3>
-                    <p className="text-gray-400 mb-6">Get started by creating your first expense to track your spending</p>
+                    <p className="text-gray-400 mb-6">Get started by exploring your budgets and create your first expense to track your spending</p>
+                    <Link to='/my-budget-list'>
                     <button className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors inline-flex items-center">
-                        <PlusCircle className="w-5 h-5 mr-2" />
-                        Create New Expense
+                        <ArrowBigRight className="w-5 h-5 mr-2" />
+                         Go to Budgets
                     </button>
+                    </Link>
                 </motion.div>
             ) : (
                 <motion.div

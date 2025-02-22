@@ -69,18 +69,21 @@ export default function MyBudgetList() {
           const expenseCount = budget.expenses ? budget.expenses.length : 0;
 
           // Calculate spending percentage based on expense count
-          const expensePercentage = expenseCount === 0 ? 0 :
-            Math.min(95, Math.max(20, expenseCount * 20));
-          const spentAmount = Math.round(budget.budgetAmount * (expensePercentage / 100));
+          // const expensePercentage = expenseCount === 0 ? 0 :
+          //   Math.min(95, Math.max(20, expenseCount * 20));
+
+          const spentAmount = budget.spentAmount;
+          const remainingAmount = budget.remainingAmount
+          const expensePercentage = (spentAmount / budget.budgetAmount) * 100;
 
           return {
             ...budget,
             spent: spentAmount,
-            remaining: budget.budgetAmount - spentAmount,
+            remaining: remainingAmount,
             expensePercentage: expensePercentage,
             formattedBudgetAmount: `₹${budget.budgetAmount.toLocaleString()}`,
             formattedSpent: `₹${spentAmount.toLocaleString()}`,
-            formattedRemaining: `₹${(budget.budgetAmount - spentAmount).toLocaleString()}`,
+            formattedRemaining: `₹${(remainingAmount).toLocaleString()}`,
             status: expensePercentage > 90 ? 'critical' :
               expensePercentage > 70 ? 'warning' : 'good'
           };
@@ -316,26 +319,44 @@ export default function MyBudgetList() {
         </motion.div>
 
         {/* Remaining Card */}
+
         <motion.div
           variants={itemVariant}
-          className="bg-gray-800 p-6 rounded-xl shadow-lg border-l-4 border-green-500"
+          className={`bg-gray-800 p-6 rounded-xl shadow-lg border-l-4 ${budgetData.budgetList.reduce((total, budget) => total + budget.remaining, 0) < 0
+            ? 'border-red-500'
+            : 'border-green-500'
+            }`}
           whileHover={{ y: -5, transition: { duration: 0.2 } }}
         >
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-400 text-sm">Total Remaining</p>
-              <h2 className="text-3xl font-semibold text-green-400">
-                ₹{budgetData.budgetList.reduce((total, budget) => total + budget.remaining, 0).toLocaleString()}
+              <h2 className={`text-3xl font-semibold ${budgetData.budgetList.reduce((total, budget) => total + budget.remaining, 0) < 0
+                ? 'text-red-400'
+                : 'text-green-400'
+                }`}>
+                ₹{budgetData?.budgetList?.reduce((total, budget) => total + budget.remaining, 0).toLocaleString()}
               </h2>
             </div>
-            <div className="p-3 bg-green-500/20 rounded-lg">
-              <PieChart className="w-6 h-6 text-green-400" />
+            <div className={`p-3 rounded-lg ${budgetData.budgetList.reduce((total, budget) => total + budget.remaining, 0) < 0
+              ? 'bg-red-500/20'
+              : 'bg-green-500/20'
+              }`}>
+              <PieChart className={`w-6 h-6 ${budgetData.budgetList.reduce((total, budget) => total + budget.remaining, 0) < 0
+                ? 'text-red-400'
+                : 'text-green-400'
+                }`} />
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <span className="text-gray-400">Available to spend</span>
+            <span className="text-gray-400">
+              {budgetData.budgetList.reduce((total, budget) => total + budget.remaining, 0) < 0
+                ? 'Overbudget'
+                : 'Available to spend'}
+            </span>
           </div>
         </motion.div>
+
       </motion.div>
 
       {/* Budget List */}
@@ -355,7 +376,9 @@ export default function MyBudgetList() {
             </div>
             <h3 className="text-2xl font-semibold text-blue-400 mb-2">No Budgets Found</h3>
             <p className="text-gray-400 mb-6">Get started by creating your first budget to track your expenses</p>
-            <button className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors inline-flex items-center">
+            <button className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors inline-flex items-center"
+              onClick={() => setIsAddBudgetOpen(true)}
+            >
               <PlusCircle className="w-5 h-5 mr-2" />
               Create New Budget
             </button>
@@ -401,9 +424,15 @@ export default function MyBudgetList() {
                           {budget.formattedSpent}
                         </p>
                       </div>
-                      <div>
+                      {/* <div>
                         <p className="text-sm text-gray-400">Remaining</p>
                         <p className="font-semibold text-green-400">{budget.formattedRemaining}</p>
+                      </div> */}
+                      <div>
+                        <p className="text-sm text-gray-400">Remaining</p>
+                        <p className={`font-semibold ${budget.remaining < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                          {budget.formattedRemaining}
+                        </p>
                       </div>
                       <div className="flex items-center" onClick={() => handleExpand(budget._id)}>
                         <ChevronDown className={`w-5 h-5 transition-transform ${expandedBudget === budget._id ? 'rotate-180' : ''

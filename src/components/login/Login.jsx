@@ -5,8 +5,8 @@ import axios from 'axios';
 import API_ENDPOINTS from '../../../env';
 import { useDispatch } from 'react-redux';
 import { login, logout } from '../../store/authSlice';
-import { useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
+import { Link, useNavigate } from 'react-router-dom';
+
 
 export default function Login() {
     const navigate = useNavigate()
@@ -235,9 +235,11 @@ export default function Login() {
                         transition={{ delay: 0.4 }}
                     >
                         Don't have an account?
+                        <Link to='/registeration'>
                         <span className="text-blue-400 ml-2 hover:underline hover:cursor-pointer">
                             Create Account
                         </span>
+                        </Link>
                     </motion.div>
                 </form>
             </motion.div>

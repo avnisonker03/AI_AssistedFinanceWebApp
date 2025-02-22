@@ -52,18 +52,18 @@ const EmptyState = () => (
     </div>
     <h3 className="text-2xl font-semibold text-blue-400 mb-3">Welcome to Your Financial Dashboard!</h3>
     <p className="text-gray-300 text-center text-lg max-w-md mb-6">
-      Start tracking your finances by adding your first income or expense of this month. We'll help you visualize your financial journey and provide personalized insights.
+    Start tracking your finances by adding your first income or expense of this month! Our AI-powered assistant will help you visualize your financial journey and provide smart insights to keep you on track.
     </p>
-    <div className="flex gap-4">
+    {/* <div className="flex gap-4">
       <button className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors flex items-center">
         <DollarSign className="w-5 h-5 mr-2" />
         Add First Income
       </button>
       <button className="px-6 py-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors flex items-center">
         <CreditCard className="w-5 h-5 mr-2" />
-        Add First Expense
+        Add First Budget
       </button>
-    </div>
+    </div> */}
   </div>
 );
 
@@ -286,7 +286,7 @@ export default function Dashboard() {
           processChartData(response.data.data);
         }
 
-        // Set advice from the correct location
+      
         if (response.data.advice) {
           setAdvice(response.data.advice);
         } else if (response.data.data && response.data.data.advice) {
@@ -354,7 +354,7 @@ export default function Dashboard() {
   }
 
   const hasData = dashboardData.income || dashboardData.expenses ||
-    (dashboardData.budgets?.activeBudgets?.length > 0);
+    (dashboardData.budgets?.activeBudgets?.length > 0) ;
   console.log("has data", hasData)
 
   return (
@@ -651,7 +651,7 @@ export default function Dashboard() {
 
           {/* Budget Details Section */}
           {dashboardData.budgets.activeBudgets?.length === 0 ? (
-            <div className="bg-gray-800 text-center py-12">
+            <div className="bg-gray-800 text-center py-12 mt-4">
               <div className="flex flex-col items-center gap-4">
                 <div className="text-gray-400 mb-2">No budgets created yet</div>
                 <button
@@ -665,12 +665,12 @@ export default function Dashboard() {
             </div>
           ) : (
             // Your existing table code here
-            <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden p-4 mt-8">
               <motion.div
                 variants={containerVariant}
                 initial="hidden"
                 animate="visible"
-                className="mt-8"
+                className="mt-2"
               >
                 <h3 className="text-xl font-semibold mb-4">Budget Details</h3>
                 <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
