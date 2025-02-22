@@ -569,33 +569,58 @@ export const getUserDashboard = (async (req, res) => {
 
 })
 
-export const googleAuthCallback = async (req, res) => {
-  try {
-      const user = req.user; // Passport adds user to req
+// export const googleAuthCallback = async (req, res) => {
+//   try {
+//       const user = req.user; // Passport adds user to req
       
+//       const accessToken = generateAccessToken(user._id, user.email);
+//       const refreshToken = generateRefreshToken(user._id, user.email);
+
+//       const userDetails = {
+//           fullName: user.fullName,
+//           email: user.email,
+//           incomes: user.incomes || [],
+//           budgets: user.budgets || [],
+//           accessToken,
+//           refreshToken
+//       };
+
+//       return res.status(200).json({
+//           message: "Google authentication successful",
+//           userDetails
+//       });
+//   } catch (error) {
+//       console.log("Google auth callback error:", error);
+//       return res.status(500).json({
+//           message: "Authentication failed"
+//       });
+//   }
+// };
+
+export const googleAuthCallback = async (req, res) => {
+    try {
+      const user = req.user;
       const accessToken = generateAccessToken(user._id, user.email);
       const refreshToken = generateRefreshToken(user._id, user.email);
-
+      
       const userDetails = {
-          fullName: user.fullName,
-          email: user.email,
-          incomes: user.incomes || [],
-          budgets: user.budgets || [],
-          accessToken,
-          refreshToken
+        fullName: user.fullName,
+        email: user.email,
+        incomes: user.incomes || [],
+        budgets: user.budgets || [],
+        accessToken,
+        refreshToken
       };
-
-      return res.status(200).json({
-          message: "Google authentication successful",
-          userDetails
-      });
-  } catch (error) {
+  
+      // Redirect to frontend with encoded data
+      const encodedData = encodeURIComponent(JSON.stringify(userDetails));
+      res.redirect(`${process.env.FRONTEND_URL}/auth/google/success?data=${encodedData}`);
+      
+    } catch (error) {
       console.log("Google auth callback error:", error);
-      return res.status(500).json({
-          message: "Authentication failed"
-      });
-  }
-};
+      res.redirect(`${process.env.FRONTEND_URL}/auth/google/error`);
+    }
+  };
 
 
 export const verifyToken=async(req,res)=>{

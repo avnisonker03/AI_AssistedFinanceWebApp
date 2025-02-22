@@ -226,23 +226,31 @@ export const getAllBudgetLists = (async (req, res) => {
 
         const totalBudgetEntries = await Budget.countDocuments({ userId });
 
-        if (!budgetList) {
-            return res.status(500).json({
-                message: "error fetching budget list"
-            })
-        }
+        // if (!budgetList) {
+            
+        //     return res.status(500).json({
+        //         message: "error fetching budget list"
+        //     })
+        // }
+        // console.log("budget list",budgetList)
+        // if (!totalBudgetEntries) {
+        //     console.log("budget entry",totalBudgetEntries)
+        //     return res.status(500).json({
+        //         message: "error fetching budget count"
+        //     })
+        // }
 
-        if (!totalBudgetEntries) {
-            return res.status(500).json({
-                message: "error fetching budget count"
-            })
-        }
+        // return res.status(200).json({
+        //     message: "budget lists fetched successfully",
+        //     budgetList,
+        //     totalBudgetEntries
+        // })
 
         return res.status(200).json({
-            message: "budget lists fetched successfully",
+            message: totalBudgetEntries === 0 ? "No budgets found" : "Budget lists fetched successfully",
             budgetList,
             totalBudgetEntries
-        })
+        });
 
 
     } catch (error) {
