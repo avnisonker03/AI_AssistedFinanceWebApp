@@ -623,6 +623,7 @@ export const googleAuthCallback = async (req, res) => {
   };
 
 
+
 export const verifyToken=async(req,res)=>{
      try {
     // The authenticateToken middleware already verified the token

@@ -7,9 +7,8 @@ const initializePassport = () => {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: "/user/auth/google/callback"
-    }, async (accessToken, refreshToken, profile, done) => {
+    }, async (profile, done) => {
         try {
-            // Check if user exists
             let user = await User.findOne({ 
                 $or: [
                     { googleId: profile.id },
@@ -18,7 +17,6 @@ const initializePassport = () => {
             });
 
             if (!user) {
-                // Create new user if doesn't exist
                 user = await User.create({
                     googleId: profile.id,
                     email: profile.emails[0].value,

@@ -1,6 +1,7 @@
 import { Budget } from "../models/budget.model.js";
 import { User } from "../models/user.model.js";
 import { Expense } from "../models/expense.model.js";
+import mongoose from "mongoose";
 
 export const createBudget = (async (req, res) => {
     try {
@@ -201,65 +202,155 @@ export const getBudgetById = (async (req, res) => {
 })
 
 
-export const getAllBudgetLists = (async (req, res) => {
+// export const getAllBudgetLists = (async (req, res) => {
+//     try {
+//         const userId = req.userId;
+//         if (!userId) {
+//             return res.status(404).json({
+//                 message: "you are not authorised to view the budget"
+//             })
+//         }
+//         const { page = 1, limit = 10, sortBy, sortType } = req.query
+//         const pageNumber = parseInt(page)
+//         const limitNumber = parseInt(limit)
+//         const skip = (pageNumber - 1) * limitNumber
+
+//         let sort = {}
+//         if (sortBy) {
+//             sort[sortBy] = sortType === 'desc' ? -1 : 1
+//         }
+
+//         const budgetList = await Budget.find({ userId })
+//             .sort(sort)
+//             .skip(skip)
+//             .limit(limitNumber)
+
+//         const totalBudgetEntries = await Budget.countDocuments({ userId });
+
+ 
+
+//         return res.status(200).json({
+//             message: totalBudgetEntries === 0 ? "No budgets found" : "Budget lists fetched successfully",
+//             budgetList,
+//             totalBudgetEntries
+//         });
+
+
+//     } catch (error) {
+//         console.log("Error fetching budget lists", error)
+//         return res.status(500).json({
+//             message: "error fetching budget list"
+//         })
+//     }
+// })
+export const getAllBudgetLists = async (req, res) => {
     try {
         const userId = req.userId;
         if (!userId) {
             return res.status(404).json({
                 message: "you are not authorised to view the budget"
-            })
+            });
         }
-        const { page = 1, limit = 10, sortBy, sortType } = req.query
-        const pageNumber = parseInt(page)
-        const limitNumber = parseInt(limit)
-        const skip = (pageNumber - 1) * limitNumber
 
-        let sort = {}
+        // Get pagination and sorting params
+        const { page = 1, limit = 10, sortBy, sortType } = req.query;
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+        const skip = (pageNumber - 1) * limitNumber;
+
+        // Create sort object for aggregation
+        let sortStage = {};
         if (sortBy) {
-            sort[sortBy] = sortType === 'desc' ? -1 : 1
+            sortStage = { $sort: { [sortBy]: sortType === 'desc' ? -1 : 1 } };
+        } else {
+            sortStage = { $sort: { createdAt: -1 } }; // Default sort
         }
 
-        const budgetList = await Budget.find({ userId })
-            .sort(sort)
-            .skip(skip)
-            .limit(limitNumber)
+        // Convert userId string to ObjectId
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
+        // Build the aggregation pipeline
+        const pipeline = [
+            // Match budgets for the specific user
+            {
+                $match: {
+                    userId: userObjectId
+                }
+            },
+            // Lookup expenses for each budget
+            {
+                $lookup: {
+                    from: "expenses",
+                    localField: "_id",
+                    foreignField: "budgetId",
+                    as: "expenseDetails"
+                }
+            },
+            // Add computed fields
+            {
+                $addFields: {
+                    // Calculate total spent amount from expenses
+                    spentAmount: {
+                        $reduce: {
+                            input: "$expenseDetails",
+                            initialValue: 0,
+                            in: { $add: ["$$value", "$$this.expenseAmount"] }
+                        }
+                    },
+                    // Calculate remaining amount
+                    remainingAmount: {
+                        $subtract: [
+                            "$budgetAmount",
+                            {
+                                $reduce: {
+                                    input: "$expenseDetails",
+                                    initialValue: 0,
+                                    in: { $add: ["$$value", "$$this.expenseAmount"] }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            // Project only needed fields
+            {
+                $project: {
+                    budgetName: 1,
+                    budgetAmount: 1,
+                    startDate: 1,
+                    spentAmount: 1,
+                    remainingAmount: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    expenses: "$expenseDetails"
+                }
+            },
+            sortStage,
+            { $skip: skip },
+            { $limit: limitNumber }
+        ];
+
+        // Execute the aggregation pipeline
+        const budgetList = await Budget.aggregate(pipeline);
+
+        // Get total count for pagination
         const totalBudgetEntries = await Budget.countDocuments({ userId });
-
-        // if (!budgetList) {
-            
-        //     return res.status(500).json({
-        //         message: "error fetching budget list"
-        //     })
-        // }
-        // console.log("budget list",budgetList)
-        // if (!totalBudgetEntries) {
-        //     console.log("budget entry",totalBudgetEntries)
-        //     return res.status(500).json({
-        //         message: "error fetching budget count"
-        //     })
-        // }
-
-        // return res.status(200).json({
-        //     message: "budget lists fetched successfully",
-        //     budgetList,
-        //     totalBudgetEntries
-        // })
 
         return res.status(200).json({
             message: totalBudgetEntries === 0 ? "No budgets found" : "Budget lists fetched successfully",
             budgetList,
-            totalBudgetEntries
+            totalBudgetEntries,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(totalBudgetEntries / limitNumber)
         });
 
-
     } catch (error) {
-        console.log("Error fetching budget lists", error)
+        console.log("Error fetching budget lists", error);
         return res.status(500).json({
             message: "error fetching budget list"
-        })
+        });
     }
-})
+};
 
 export const getExpenseListUnderAbudget = (async (req, res) => {
     try {

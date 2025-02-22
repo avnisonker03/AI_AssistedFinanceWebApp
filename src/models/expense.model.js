@@ -26,7 +26,7 @@ const expenseSchema = new Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['cash', 'credit', 'debit', 'upi', 'other'],
+        enum: ['cash', 'credit', 'debit', 'upi', 'other','card'],
         default: 'cash'
     },
 }, { timestamps: true });
