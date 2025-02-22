@@ -24,37 +24,44 @@ export default function Login() {
             [e.target.name]: e.target.value
         });
     };
-  
-    const handleGoogleLogin = async (credentialResponse) => {
-        setLoading(true);
-        setError("");
-        try {
-            console.log("Google Login Success: Credential Received"); // Debug log
-    
-            // const response = await axios.get(API_ENDPOINTS.googleSignIn);
-    
-            // console.log("Server Response:", response.data); // Debug log
-    
-            // if (response.data) {
-            //     localStorage.setItem('accessToken', response.data.accessToken);
-            //     // localStorage.setItem('refreshToken', response.data.refreshToken);
-            //     localStorage.setItem('authTimestamp', Date.now().toString());
-    
-            //     dispatch(login(response.data.userDetails));
-    
-            //     console.log("Navigating to dashboard..."); // Debug log
-            //     navigate('/dashboard');
-            // }
-            window.location.href = API_ENDPOINTS.googleSignIn;
-        } catch (err) {
-            console.log("Error",err)
-            console.error("Google Login Error:", err.response?.data?.message || err.message);
-            setError(err.response?.data?.message || "Google login failed");
-        } finally {
-            setLoading(false);
-        }
+
+    // const handleGoogleLogin = async (credentialResponse) => {
+    //     setLoading(true);
+    //     setError("");
+    //     try {
+    //         console.log("Google Login Success: Credential Received"); // Debug log
+
+    //         // const response = await axios.get(API_ENDPOINTS.googleSignIn);
+
+    //         // console.log("Server Response:", response.data); // Debug log
+
+    //         // if (response.data) {
+    //         //     localStorage.setItem('accessToken', response.data.accessToken);
+    //         //     // localStorage.setItem('refreshToken', response.data.refreshToken);
+    //         //     localStorage.setItem('authTimestamp', Date.now().toString());
+
+    //         //     dispatch(login(response.data.userDetails));
+
+    //         //     console.log("Navigating to dashboard..."); // Debug log
+    //         //     navigate('/dashboard');
+    //         // }
+    //         window.location.href = API_ENDPOINTS.googleSignIn;
+    //     } catch (err) {
+    //         console.log("Error",err)
+    //         console.error("Google Login Error:", err.response?.data?.message || err.message);
+    //         setError(err.response?.data?.message || "Google login failed");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+
+    const handleGoogleLogin = () => {
+        // Simply redirect to backend Google auth route
+        // const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3000';
+        window.location.href = API_ENDPOINTS.googleSignIn;
     };
-    
+
 
     const handleGoogleFailure = (error) => {
         setError("Google authentication failed: " + (error.error || "Unknown error"));

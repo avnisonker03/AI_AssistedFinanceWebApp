@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, Calendar, ChevronDown, AlertTriangle, PieChart, ArrowUpRight, Trash2 } from 'lucide-react';
+import { DollarSign, Calendar, ChevronDown, AlertTriangle, PieChart, ArrowUpRight, Trash2, PlusCircle } from 'lucide-react';
 import API_ENDPOINTS from '../../../env';
 import axios from 'axios';
 import DeleteExpense from './DeleteExpense';
@@ -209,8 +209,78 @@ export default function ExpenseLists() {
                 </motion.div>
             </motion.div>
 
+
+            {expenseData.length === 0 ? (
+                <motion.div
+                    variants={itemVariant}
+                    className="bg-gray-800/50 rounded-xl p-12 text-center"
+                >
+                    <div className="mx-auto bg-blue-500/20 p-4 rounded-full mb-4 w-16 h-16 flex items-center justify-center">
+                        <DollarSign className="w-8 h-8 text-blue-400" />
+                    </div>
+                    <h3 className="text-2xl font-semibold text-blue-400 mb-2">No Expenses Found</h3>
+                    <p className="text-gray-400 mb-6">Get started by creating your first expense to track your spending</p>
+                    <button className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-500 transition-colors inline-flex items-center">
+                        <PlusCircle className="w-5 h-5 mr-2" />
+                        Create New Expense
+                    </button>
+                </motion.div>
+            ) : (
+                <motion.div
+                    variants={containerVariant}
+                    initial="hidden"
+                    animate="visible"
+                    className="space-y-6"
+                >
+                    {expenseData.map((expense) => (
+                        <motion.div
+                            key={expense._id}
+                            variants={itemVariant}
+                            className="bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+                        >
+                            <div className="p-4">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between">
+                                    <div className="flex items-start space-x-4">
+                                        <div className="p-3 bg-blue-500/20 rounded-lg">
+                                            <DollarSign className="w-6 h-6 text-blue-400" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-semibold">{expense.expenseName}</h3>
+                                            <p className="text-gray-400 text-sm">
+                                                {new Date(expense.expenseDate).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric'
+                                                })}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center mt-4 md:mt-0 space-x-6">
+                                        <div>
+                                            <p className="text-sm text-gray-400">Amount</p>
+                                            <p className="font-semibold">₹{expense.expenseAmount.toLocaleString()}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-400">Payment Method</p>
+                                            <p className="font-semibold capitalize">{expense.paymentMethod}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDelete(expense)}
+                                            className="p-2 hover:bg-red-900/30 rounded-full transition-colors"
+                                            aria-label="Delete expense"
+                                        >
+                                            <Trash2 className="w-5 h-5 text-red-400" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
+            )}
             {/* Expense List - Simplified without expansion */}
-            <motion.div
+            {/* <motion.div
                 variants={containerVariant}
                 initial="hidden"
                 animate="visible"
@@ -261,7 +331,7 @@ export default function ExpenseLists() {
                         </div>
                     </motion.div>
                 ))}
-            </motion.div>
+            </motion.div> */}
             {/* Delete Confirmation Modal */}
             <DeleteExpense
                 isOpen={deleteModalOpen}

@@ -305,8 +305,12 @@ export default function MyBudgetList() {
           </div>
           <div className="mt-4 flex items-center text-sm">
             <span className="text-gray-400">
-              {Math.round(budgetData.budgetList.reduce((total, budget) => total + budget.spent, 0) /
-                budgetData.budgetList.reduce((total, budget) => total + budget.budgetAmount, 0) * 100)}% of total budget
+              {budgetData.budgetList?.length > 0
+                ? `${Math.round(
+                  (budgetData.budgetList.reduce((total, budget) => total + budget.spent, 0) /
+                    budgetData.budgetList.reduce((total, budget) => total + budget.budgetAmount, 0)) * 100
+                )}%`
+                : '0%'} of total budget
             </span>
           </div>
         </motion.div>
