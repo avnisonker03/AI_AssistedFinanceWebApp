@@ -1,5 +1,3 @@
-// const otpService = require('./otpService');
-
 import otpService from "../utils/redis.config.js"
 
 export const sendOtp=(async(req,res)=>{

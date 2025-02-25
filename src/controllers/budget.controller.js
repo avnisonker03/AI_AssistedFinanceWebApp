@@ -86,7 +86,6 @@ export const updateBudget = (async (req, res) => {
         const updatedData = {
             budgetName: updateBudgetName,
             budgetAmount: updateBudgetAmount,
-            // endDate: updatedBudgetEndDate
         }
         const options = {
             new: true,         // Return updated document
@@ -201,48 +200,6 @@ export const getBudgetById = (async (req, res) => {
     }
 })
 
-
-// export const getAllBudgetLists = (async (req, res) => {
-//     try {
-//         const userId = req.userId;
-//         if (!userId) {
-//             return res.status(404).json({
-//                 message: "you are not authorised to view the budget"
-//             })
-//         }
-//         const { page = 1, limit = 10, sortBy, sortType } = req.query
-//         const pageNumber = parseInt(page)
-//         const limitNumber = parseInt(limit)
-//         const skip = (pageNumber - 1) * limitNumber
-
-//         let sort = {}
-//         if (sortBy) {
-//             sort[sortBy] = sortType === 'desc' ? -1 : 1
-//         }
-
-//         const budgetList = await Budget.find({ userId })
-//             .sort(sort)
-//             .skip(skip)
-//             .limit(limitNumber)
-
-//         const totalBudgetEntries = await Budget.countDocuments({ userId });
-
- 
-
-//         return res.status(200).json({
-//             message: totalBudgetEntries === 0 ? "No budgets found" : "Budget lists fetched successfully",
-//             budgetList,
-//             totalBudgetEntries
-//         });
-
-
-//     } catch (error) {
-//         console.log("Error fetching budget lists", error)
-//         return res.status(500).json({
-//             message: "error fetching budget list"
-//         })
-//     }
-// })
 export const getAllBudgetLists = async (req, res) => {
     try {
         const userId = req.userId;

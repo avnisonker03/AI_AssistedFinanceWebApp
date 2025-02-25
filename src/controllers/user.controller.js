@@ -569,34 +569,6 @@ export const getUserDashboard = (async (req, res) => {
 
 })
 
-// export const googleAuthCallback = async (req, res) => {
-//   try {
-//       const user = req.user; // Passport adds user to req
-      
-//       const accessToken = generateAccessToken(user._id, user.email);
-//       const refreshToken = generateRefreshToken(user._id, user.email);
-
-//       const userDetails = {
-//           fullName: user.fullName,
-//           email: user.email,
-//           incomes: user.incomes || [],
-//           budgets: user.budgets || [],
-//           accessToken,
-//           refreshToken
-//       };
-
-//       return res.status(200).json({
-//           message: "Google authentication successful",
-//           userDetails
-//       });
-//   } catch (error) {
-//       console.log("Google auth callback error:", error);
-//       return res.status(500).json({
-//           message: "Authentication failed"
-//       });
-//   }
-// };
-
 export const googleAuthCallback = async (req, res) => {
     try {
       const user = req.user;
@@ -626,10 +598,6 @@ export const googleAuthCallback = async (req, res) => {
 
 export const verifyToken=async(req,res)=>{
      try {
-    // The authenticateToken middleware already verified the token
-    // and attached userId to req
-    
-    // Fetch user data using the userId from token
     const user = await User.findById(req.userId).select('-password');
     
     if (!user) {
