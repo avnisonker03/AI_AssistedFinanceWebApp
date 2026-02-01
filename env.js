@@ -1,4 +1,5 @@
-const host="http://localhost:3000/"
+// const host="http://localhost:3000/"
+const host="https://ai-assistedfinancewebapp.onrender.com/"
 
 const API_ENDPOINTS={
     login:`${host}user/login-user`,
