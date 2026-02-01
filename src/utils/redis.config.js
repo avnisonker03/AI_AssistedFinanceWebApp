@@ -69,7 +69,7 @@ class OTPService {
           </div>
         `
       };
-      console.log("DEBUG: Attempting Email Send via SendGrid...");
+      console.log("DEBUG: Attempting Email Send via SendGrid...",mailOptions);
       await transporter.sendMail(mailOptions);
       return { success: true, message: 'OTP sent successfully' };
 
