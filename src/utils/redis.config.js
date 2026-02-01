@@ -33,7 +33,9 @@ const transporter = nodemailer.createTransport({
   // }
   host: "smtp.sendgrid.net",
   port: 465,
-  secure: false, // MUST be false for 587
+  secure: true,
+  connectionTimeout: 5000, // 5 seconds
+  greetingTimeout: 5000,
   auth: {
     user: "apikey", // literally this string
     pass: process.env.SENDGRID_API_KEY,
