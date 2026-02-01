@@ -11,7 +11,7 @@ const app=express();
 // }))
 app.use(cors({
   origin: true,
-  credentials: true,
+  credentials: false,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
