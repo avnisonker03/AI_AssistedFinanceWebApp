@@ -3,6 +3,10 @@ import cors from "cors"
 import cookieParser from "cookie-parser";
 import passport from 'passport';
 import initializePassport from './utils/passport.config.js';
+import userRouter from "./routes/user.routes.js";
+import incomeRouter from "./routes/income.routes.js";
+import budgetRouter from "./routes/budget.routes.js";
+import expenseRouter from "./routes/expense.routes.js";
 const app=express();
 
 // app.use(cors({
@@ -34,6 +38,11 @@ app.use(cors({
 // Handle Preflight for all routes
 
 app.options("*", cors());
+app.use((req, res, next) => {
+    console.log(`>>> Incoming: ${req.method} ${req.path}`);
+    console.log(`>>> From Origin: ${req.headers.origin}`);
+    next();
+});
 
 
 app.use(express.json({limit:"16kb"}))
@@ -47,11 +56,6 @@ initializePassport();
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
-
-import userRouter from "./routes/user.routes.js";
-import incomeRouter from "./routes/income.routes.js";
-import budgetRouter from "./routes/budget.routes.js";
-import expenseRouter from "./routes/expense.routes.js";
 
 
 app.use("/user",userRouter);
