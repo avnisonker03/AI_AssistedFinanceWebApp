@@ -8,7 +8,10 @@ const redis = new Redis(
   // host: process.env.REDIS_HOST || 'localhost',
   // port: process.env.REDIS_PORT || 6379,
 //   password: process.env.REDIS_PASSWORD
-process.env.REDIS_URL);
+process.env.REDIS_URL, {
+  maxRetriesPerRequest: 1,
+  connectTimeout: 10000, // 10 seconds
+});
 
 redis.on("connect", () => {
   console.log("✅ Redis connected");
@@ -29,7 +32,7 @@ const transporter = nodemailer.createTransport({
   //   pass: process.env.EMAIL_PASSWORD
   // }
   host: "smtp.sendgrid.net",
-  port: 587,
+  port: 465,
   secure: false, // MUST be false for 587
   auth: {
     user: "apikey", // literally this string
@@ -50,8 +53,9 @@ class OTPService {
       const otp = this.generateOTP();
       
       // Store OTP in Redis with 10 minutes expiry
+      console.log("DEBUG: Attempting Redis SET for", email);
       await redis.set(`otp:${email}`, otp, 'EX', 120);
-
+      console.log("DEBUG: Redis SET successful");
       // Send email
       const mailOptions = {
         from: process.env.FROM_EMAIL,
@@ -65,7 +69,7 @@ class OTPService {
           </div>
         `
       };
-
+      console.log("DEBUG: Attempting Email Send via SendGrid...");
       await transporter.sendMail(mailOptions);
       return { success: true, message: 'OTP sent successfully' };
 
