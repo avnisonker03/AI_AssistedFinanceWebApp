@@ -4,10 +4,18 @@ import nodemailer from "nodemailer";
 import Redis from "ioredis";
 
 // Redis connection
-const redis = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379,
+const redis = new Redis(
+  // host: process.env.REDIS_HOST || 'localhost',
+  // port: process.env.REDIS_PORT || 6379,
 //   password: process.env.REDIS_PASSWORD
+process.env.REDIS_URL);
+
+redis.on("connect", () => {
+  console.log("✅ Redis connected");
+});
+
+redis.on("error", (err) => {
+  console.error("❌ Redis error", err);
 });
 
 // Email configuration

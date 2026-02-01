@@ -159,8 +159,8 @@ export const login = (async (req, res) => {
             })
         }
 
-        const user = await User.findOne({ email: email });
-        if (!user) {
+        const user = await User.findOne({ email: email }).lean();
+        if (!user?.password) {
             return res.status(404).json({ message: "user with this email or password doesn't exist" });
         }
 
