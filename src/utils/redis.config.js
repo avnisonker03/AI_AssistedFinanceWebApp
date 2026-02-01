@@ -21,13 +21,20 @@ redis.on("error", (err) => {
 // Email configuration
 const transporter = nodemailer.createTransport({
   // service: 'gmail',
-  host: "smtp.gmail.com",
-  port: 465,        // SSL
-  secure: true,     // must be true for SSL
+  // host: "smtp.gmail.com",
+  // port: 465,        // SSL
+  // secure: true,     // must be true for SSL
+  // auth: {
+  //   user: process.env.EMAIL_USER,
+  //   pass: process.env.EMAIL_PASSWORD
+  // }
+  host: "smtp.sendgrid.net",
+  port: 587,
+  secure: false, // MUST be false for 587
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  }
+    user: "apikey", // literally this string
+    pass: process.env.SENDGRID_API_KEY,
+  },
 });
 
 class OTPService {
@@ -47,7 +54,7 @@ class OTPService {
 
       // Send email
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: process.env.FROM_EMAIL,
         to: email,
         subject: 'Your OTP Code',
         html: `
