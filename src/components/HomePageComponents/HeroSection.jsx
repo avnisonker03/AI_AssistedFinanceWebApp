@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 export default function HeroSection() {
   return (
-    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+    <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden h-screen">
       <div className="max-w-full mx-auto px-6 py-16">
         <div className="relative">
           {/* Animated Background Icons - Increased opacity and brightness */}

@@ -303,34 +303,34 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    // const fetchData = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const response = await axios.get(API_ENDPOINTS.dashboard, {
-    //       headers: { Authorization: `Bearer ${accessToken}` },
-    //     });
-    //     if (response.data) {
-    //       console.log("dashboard data", response.data)
-    //       if (response.data.data) {
-    //         setDashboardData(response.data.data);
-    //         processChartData(response.data.data);
-    //       }
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(API_ENDPOINTS.dashboard, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (response.data) {
+          console.log("dashboard data", response.data)
+          if (response.data.data) {
+            setDashboardData(response.data.data);
+            processChartData(response.data.data);
+          }
 
-    //       // Set advice from the correct location
-    //       if (response.data.advice) {
-    //         setAdvice(response.data.advice);
-    //       } else if (response.data.data && response.data.data.advice) {
-    //         setAdvice(response.data.data.advice);
-    //       }
-    //     }
-    //   } catch (error) {
-    //     console.error('Error fetching dashboard data:', error);
-    //     // For development testing, use sample data if API fails
+          // Set advice from the correct location
+          if (response.data.advice) {
+            setAdvice(response.data.advice);
+          } else if (response.data.data && response.data.data.advice) {
+            setAdvice(response.data.data.advice);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        // For development testing, use sample data if API fails
 
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchData();
   }, [timeFrame]); // Re-fetch when timeFrame changes
@@ -353,7 +353,7 @@ export default function Dashboard() {
     );
   }
 
-  const hasData = dashboardData.income || dashboardData.expenses ||
+  const hasData = (dashboardData?.income) || (dashboardData?.expenses) ||
     (dashboardData.budgets?.activeBudgets?.length > 0) ;
   console.log("has data", hasData)
 
@@ -383,7 +383,7 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {hasData.totalMonthlyIncome === 0 ? (
+      {!hasData ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
