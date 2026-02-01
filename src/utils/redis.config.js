@@ -20,7 +20,10 @@ redis.on("error", (err) => {
 
 // Email configuration
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  // service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 465,        // SSL
+  secure: true,     // must be true for SSL
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD
