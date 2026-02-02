@@ -33,7 +33,7 @@ export default function Registration() {
       
       if (response.data) {
         setOtpSent(true);
-        setMessage('OTP sent successfully! Please check your email. /n If its not there check your spam folder too.');
+        setMessage('OTP sent successfully! Please check your email. If its not there check your spam folder too.');
         setStep(2);
       }
     } catch (error) {
