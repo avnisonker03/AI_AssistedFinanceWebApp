@@ -1,6 +1,6 @@
 
 
-import nodemailer from "nodemailer";
+import sgMail from '@sendgrid/mail';
 import Redis from "ioredis";
 
 // Redis connection
