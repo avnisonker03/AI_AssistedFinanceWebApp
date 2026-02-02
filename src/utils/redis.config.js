@@ -22,25 +22,27 @@ redis.on("error", (err) => {
 });
 
 // Email configuration
-const transporter = nodemailer.createTransport({
-  // service: 'gmail',
-  // host: "smtp.gmail.com",
-  // port: 465,        // SSL
-  // secure: true,     // must be true for SSL
-  // auth: {
-  //   user: process.env.EMAIL_USER,
-  //   pass: process.env.EMAIL_PASSWORD
-  // }
-  host: "smtp.sendgrid.net",
-  port: 465,
-  secure: true,
-  connectionTimeout: 5000, // 5 seconds
-  greetingTimeout: 5000,
-  auth: {
-    user: "apikey", // literally this string
-    pass: process.env.SENDGRID_API_KEY,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   // service: 'gmail',
+//   // host: "smtp.gmail.com",
+//   // port: 465,        // SSL
+//   // secure: true,     // must be true for SSL
+//   // auth: {
+//   //   user: process.env.EMAIL_USER,
+//   //   pass: process.env.EMAIL_PASSWORD
+//   // }
+//   host: "smtp.sendgrid.net",
+//   port: 465,
+//   secure: true,
+//   connectionTimeout: 5000, // 5 seconds
+//   greetingTimeout: 5000,
+//   auth: {
+//     user: "apikey", // literally this string
+//     pass: process.env.SENDGRID_API_KEY,
+//   },
+// });
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 class OTPService {
   // Generate 6 digit OTP
@@ -72,7 +74,8 @@ class OTPService {
         `
       };
       console.log("DEBUG: Attempting Email Send via SendGrid...",mailOptions);
-      await transporter.sendMail(mailOptions);
+      // await transporter.sendMail(mailOptions);
+      await sgMail.send(msg);
       return { success: true, message: 'OTP sent successfully' };
 
     } catch (error) {
